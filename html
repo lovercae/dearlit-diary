@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moonlit Library</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Georgia, serif;
+    background:#1d1b2e;
+    color:white;
+}
+
+header{
+    text-align:center;
+    padding:20px;
+    background:#2a2640;
+}
+
+h1{
+    margin:0;
+}
+
+.container{
+    padding:20px;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.addBook{
+    margin-bottom:20px;
+}
+
+.bookshelf{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:20px;
+}
+
+.book{
+    background:#6b4226;
+    height:220px;
+    border-radius:6px;
+    padding:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:bold;
+    box-shadow:0 4px 8px rgba(0,0,0,.4);
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.7);
+}
+
+.modal-content{
+    background:white;
+    color:black;
+    width:80%;
+    max-width:700px;
+    margin:50px auto;
+    padding:20px;
+    border-radius:10px;
+}
+
+input, textarea{
+    width:100%;
+    margin:10px 0;
+    padding:10px;
+}
+
+textarea{
+    height:300px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>📚 Moonlit Library</h1>
+    <p>Your personal story shelf</p>
+</header>
+
+<div class="container">
+
+<button class="addBook" onclick="newBook()">
+➕ Add Story
+</button>
+
+<div class="bookshelf" id="bookshelf"></div>
+
+</div>
+
+<div class="modal" id="editor">
+<div class="modal-content">
+
+<input id="title" placeholder="Story Title">
+
+<textarea id="content" placeholder="Write your story here..."></textarea>
+
+<button onclick="saveBook()">💾 Save</button>
+<button onclick="deleteBook()">🗑 Delete</button>
+<button onclick="closeEditor()">❌ Close</button>
+
+</div>
+</div>
+
+<script>
+
+let books = JSON.parse(localStorage.getItem("books")) || [];
+let current = null;
+
+function render(){
+
+let shelf = document.getElementById("bookshelf");
+shelf.innerHTML = "";
+
+books.forEach((book,index)=>{
+
+let div = document.createElement("div");
+div.className="book";
+div.innerHTML = book.title || "Untitled";
+
+div.onclick = ()=>{
+current=index;
+
+document.getElementById("title").value=book.title;
+document.getElementById("content").value=book.content;
+
+document.getElementById("editor").style.display="block";
+};
+
+shelf.appendChild(div);
+
+});
+
+}
+
+function newBook(){
+
+current=null;
+
+document.getElementById("title").value="";
+document.getElementById("content").value="";
+
+document.getElementById("editor").style.display="block";
+
+}
+
+function saveBook(){
+
+let title=document.getElementById("title").value;
+let content=document.getElementById("content").value;
+
+if(current===null){
+
+books.push({
+title,
+content
+});
+
+}else{
+
+books[current]={
+title,
+content
+};
+
+}
+
+localStorage.setItem("books",JSON.stringify(books));
+
+closeEditor();
+render();
+
+}
+
+function deleteBook(){
+
+if(current!==null){
+
+books.splice(current,1);
+
+localStorage.setItem("books",JSON.stringify(books));
+
+}
+
+closeEditor();
+render();
+
+}
+
+function closeEditor(){
+
+document.getElementById("editor").style.display="none";
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
